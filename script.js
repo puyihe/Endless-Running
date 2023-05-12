@@ -1,3 +1,7 @@
+/*
+Technically I tried adding a fullscreen button and combined all the required code parts together.
+The art continues the high-quality visual effects and smooth running and jumping animations.
+*/
 window.addEventListener('load', function () {
     const bgm = document.getElementById('bgm');
     const bgm_over = document.getElementById('bgm_over');
