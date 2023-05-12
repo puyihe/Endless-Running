@@ -1,25 +1,41 @@
 window.addEventListener('load', function () {
+    const bgm = document.getElementById('bgm');
+    const bgm_over = document.getElementById('bgm_over');
+    const bgm_up = document.getElementById('bgm_up');
+    const bgm_down = document.getElementById('bgm_down');
+    const startDiv = document.getElementById('startDiv');
+    const startbtn = document.getElementById('startbtn');
+    startDiv.style.width = "1400px";
+    startDiv.style.height = "720px";
+        // sWidth = document.body.offsetWidth;
+        // sHeight = document.body.offsetHeight;
+
     const canvas = document.getElementById('canvas1');
     const ctx = canvas.getContext('2d')
     canvas.width = 1400
     canvas.height = 720
     let enemies = []
-    let score=0
-    let gameOver=false
-    const fullScreenButton=this.document.getElementById('fullScreenButton')
+    let score = 0
+    let gameOver = false
+    const fullScreenButton = this.document.getElementById('fullScreenButton')
     class InputHandler { //游戏控制类
         constructor() {
             this.keys = []
-            this.touchY=''
-            this.touchThreshold=100 //滑动阈值,超过30触发滑动
+            this.touchY = ''
+            this.touchThreshold = 100 //滑动阈值,超过30触发滑动
             window.addEventListener('keydown', e => {
                 if ((e.key === 'ArrowDown' ||
-                        e.key === 'ArrowUp' ||
-                        e.key === 'ArrowLeft' ||
-                        e.key === 'ArrowRight') &&
+                    e.key === 'ArrowUp' ||
+                    e.key === 'ArrowLeft' ||
+                    e.key === 'ArrowRight') &&
                     this.keys.indexOf(e.key) === -1) {
                     this.keys.push(e.key)
-                }else if(e.key==='Enter'&&gameOver) restartGame()
+                } else if (e.key === 'Enter' && gameOver) {
+                    startDiv.style.display = "none";
+                    restartGame();
+                    bgm.currentTime = 0;
+                    bgm.play();//重新开始游戏播放bgm
+                }
             })
             window.addEventListener('keyup', e => {
                 if (
@@ -28,26 +44,28 @@ window.addEventListener('load', function () {
                     e.key === 'ArrowLeft' ||
                     e.key === 'ArrowRight'
                 ) {
+                    bgm_up.play();//上下左右触发音效
                     this.keys.splice(this.keys.indexOf(e.key), 1)
                 }
             })
-            window.addEventListener('touchstart',e=>{
-                this.touchY=e.changedTouches[0].pageY
+            window.addEventListener('touchstart', e => {
+                this.touchY = e.changedTouches[0].pageY
             })
-            window.addEventListener('touchmove',e=>{
-                const swipeDistance=e.changedTouches[0].pageY-this.touchY
-                if(swipeDistance<-this.touchThreshold && this.keys.indexOf('swipe up')===-1) this.keys.push('swipe up')
-                else if(swipeDistance>this.touchThreshold && this.keys.indexOf('swipe down')===-1) 
-                {
-                    this.keys.push('swipe down')
-                    if(gameOver) restartGame()
+            window.addEventListener('touchmove', e => {
+                const swipeDistance = e.changedTouches[0].pageY - this.touchY
+                if (swipeDistance < -this.touchThreshold && this.keys.indexOf('swipe up') === -1) this.keys.push('swipe up')
+                else if (swipeDistance > this.touchThreshold && this.keys.indexOf('swipe down') === -1) {
+                    this.keys.push('swipe down');
+                    if (gameOver) {
+                        restartGame();
+                    }
                 }
-            }) 
-            window.addEventListener('touchend',e=>{
+            })
+            window.addEventListener('touchend', e => {
                 console.log(this.keys)
-                this.keys.splice(this.keys.indexOf('swipe up'),1)
-                this.keys.splice(this.keys.indexOf('swipe down'),1)
-            }) 
+                this.keys.splice(this.keys.indexOf('swipe up'), 1)
+                this.keys.splice(this.keys.indexOf('swipe down'), 1)
+            })
         }
     }
     class Player {
@@ -69,41 +87,45 @@ window.addEventListener('load', function () {
             this.speedY = 0
             this.weight = 1 //使物体回落的重力
         }
-        restart(){
-            this.x=0
-            this.y=this.gameHeight-this.height
-            this.maxFrame=8
-            this.frameY=0
+        restart() {
+            this.x = 0
+            this.y = this.gameHeight - this.height
+            this.maxFrame = 8
+            this.frameY = 0
         }
         draw(context) {
-            context.linerWidth=5
-            context.strokeStyle='white'
-           context.beginPath()
-           context.arc(this.x+this.width/2,this.y+this.width/2+20,this.width/3,0,Math.PI*2)
-           context.stroke()
+            context.linerWidth = 5
+            context.strokeStyle = 'white'
+            context.beginPath()
+            context.arc(this.x + this.width / 2, this.y + this.width / 2 + 20, this.width / 3, 0, Math.PI * 2)
+            context.stroke()
 
             context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height)
         }
-        update(input,deltaTime,enemies) {
-            enemies.forEach(enemy=>{
-                const dx=(enemy.x+enemy.width/2-20)-(this.x+this.width/2)
-                const dy=(enemy.y+enemy.height/2)-(this.y+this.height/2+20)
-                const distance=Math.sqrt(dx*dx+dy*dy)
-                if(distance<enemy.width/3+this.width/3){
-                    gameOver=true
+        update(input, deltaTime, enemies) {
+            enemies.forEach(enemy => {
+                const dx = (enemy.x + enemy.width / 2 - 20) - (this.x + this.width / 2)
+                const dy = (enemy.y + enemy.height / 2) - (this.y + this.height / 2 + 20)
+                const distance = Math.sqrt(dx * dx + dy * dy)
+                if (distance < enemy.width / 3 + this.width / 3) {
+                    gameOver = true;
+                    bgm_over.play();//死亡触发死亡音乐
+                    bgm.pause();//死亡结束背景音乐
+                    startDiv.style.display = "block";
+                    startDiv.style.background = "#ffffff00";
                 }
             })
             if (this.frameTimer > this.frameInterval) {
                 if (this.frameX >= this.maxFrame) this.frameX = 0
                 else this.frameX++
-            }else{
-                this.frameTimer+=deltaTime
+            } else {
+                this.frameTimer += deltaTime
             }
             if (input.keys.indexOf('ArrowRight') > -1) {
                 this.speedX = 5
             } else if (input.keys.indexOf('ArrowLeft') > -1) {
                 this.speedX = -5
-            } else if ((input.keys.indexOf('ArrowUp') > -1 ||input.keys.indexOf('swipe up')>-1) && this.onGround()) {
+            } else if ((input.keys.indexOf('ArrowUp') > -1 || input.keys.indexOf('swipe up') > -1) && this.onGround()) {
                 this.speedY -= 32
             } else {
                 this.speedX = 0
@@ -114,11 +136,11 @@ window.addEventListener('load', function () {
             this.y += this.speedY
             if (!this.onGround()) {
                 this.speedY += this.weight //不在地面就向下方的Y下降
-                this.maxFrame=6
+                this.maxFrame = 6
                 this.frameY = 1
             } else {
                 this.speedY = 0 //在地面就不对Y轴高度改变
-                this.maxFrame=8
+                this.maxFrame = 8
                 this.frameY = 0
             }
             if (this.y > this.gameHeight - this.height) this.y = this.gameHeight - this.height
@@ -146,8 +168,8 @@ window.addEventListener('load', function () {
             this.x -= this.speed
             if (this.x < 0 - this.width) this.x = 0
         }
-        restart(){
-            this.x=0
+        restart() {
+            this.x = 0
         }
     }
     class Enemy {
@@ -165,13 +187,13 @@ window.addEventListener('load', function () {
             this.frameTimer = 0
             this.frameInterval = 1000 / this.fps
             this.speed = 8
-            this.markForDeletion=false
+            this.markForDeletion = false
         }
         draw(context) {
-            context.linerWidth=5
-             context.strokeStyle='white'
+            context.linerWidth = 5
+            context.strokeStyle = 'white'
             context.beginPath()
-            context.arc(this.x+this.width/2,this.y+this.width/2-20,this.width/3,0,Math.PI*2)
+            context.arc(this.x + this.width / 2, this.y + this.width / 2 - 20, this.width / 3, 0, Math.PI * 2)
             context.stroke()
 
             context.drawImage(this.image, this.frameX * this.width, 0, this.width, this.height, this.x, this.y, this.width, this.height)
@@ -185,10 +207,10 @@ window.addEventListener('load', function () {
                 this.frameTimer += deltaTime
             }
             this.x -= this.speed
-            if(this.x<0-this.width){
-                this.markForDeletion=true
+            if (this.x < 0 - this.width) {
+                this.markForDeletion = true
                 score++
-            } 
+            }
         }
     }
 
@@ -204,35 +226,35 @@ window.addEventListener('load', function () {
             enemy.draw(ctx)
             enemy.update(deltaTime)
         })
-        enemies=enemies.filter(enemy=>!enemy.markForDeletion)
+        enemies = enemies.filter(enemy => !enemy.markForDeletion)
     }
 
     function displayStatusText(context) {
-        context.textAlign='left'
-        context.font='40px Helvetica'
-        context.fillStyle='black'
-        context.fillText('Score:'+score,20,50)
-        context.fillStyle='white'
-        context.fillText('Score:'+score,20,52)
-        if(gameOver){
-            context.textAlign='center'
-            context.fillStyle='black'
-            context.fillText('Game Over,press Enter or swipe down  to restart',canvas.width/2,200)
-            context.fillStyle='white'
-            context.fillText('Game Over,press Enter or swipe down to restart',canvas.width/2+2,202)
+        context.textAlign = 'left'
+        context.font = '40px Helvetica'
+        context.fillStyle = 'black'
+        context.fillText('Score:' + score, 20, 50)
+        context.fillStyle = 'white'
+        context.fillText('Score:' + score, 20, 52)
+        if (gameOver) {
+            context.textAlign = 'center'
+            context.fillStyle = 'black'
+            context.fillText('Game Over,press Enter or swipe down  to restart', canvas.width / 2, 200)
+            context.fillStyle = 'white'
+            context.fillText('Game Over,press Enter or swipe down to restart', canvas.width / 2 + 2, 202)
         }
     }
-    function restartGame(){
+    function restartGame() {
         player.restart()
         background.restart()
-        enemies=[]
-        score=0
-        gameOver=false
+        enemies = []
+        score = 0
+        gameOver = false
         animate(0)
     }
-       //禁止页面滑动
+    //禁止页面滑动
 
-       function stopScroll() {
+    function stopScroll() {
         var html = document.getElementsByTagName('html')[0];
         var body = document.getElementsByTagName('body')[0];
         var o = {};
@@ -253,16 +275,26 @@ window.addEventListener('load', function () {
     const scroll = stopScroll()
     scroll.stop()  //禁止页面滚动   
 
-    function toggleFullScreen(){
-        if(!document.fullscreenElement){
-            canvas.requestFullscreen().catch(err=>{
-                alert(`错误，不能切换为全屏模式：${err.message}`)
+    function toggleFullScreen() {
+        
+        {
+            startDiv.style.width = sWidth;
+            startDiv.style.height = sHeight;
+            startDiv.style.transform = "translate(0%,0%)";
+            startDiv.style.top = "0";
+            startDiv.style.left = "0";
+        }
+
+
+        if (!document.fullscreenElement) {
+            canvas.requestFullscreen().catch(err => {
+                alert(`${err.message}`)
             })
-        }else{
+        } else {
             document.exitFullscreen()
         }
     }
-    fullScreenButton.addEventListener('click',toggleFullScreen)
+    fullScreenButton.addEventListener('click', toggleFullScreen)
     const input = new InputHandler()
     const player = new Player(canvas.width, canvas.height)
     const background = new BackGround(canvas.width, canvas.height)
@@ -278,10 +310,17 @@ window.addEventListener('load', function () {
         background.draw(ctx)
         background.update()
         player.draw(ctx)
-        player.update(input,deltaTime,enemies)
+        player.update(input, deltaTime, enemies)
         handledEnemies(deltaTime)
         displayStatusText(ctx)
-        if(!gameOver) requestAnimationFrame(animate)
+        if (!gameOver) requestAnimationFrame(animate)
     }
-    animate(0)
+
+    startbtn.onclick = function () {
+        
+        startDiv.style.display = "none";
+        bgm.play();
+        restartGame();
+    };
+
 })

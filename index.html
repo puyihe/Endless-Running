@@ -9,12 +9,22 @@
 </head>
 
 <body>
+    <div id="startDiv">
+        <div id="startbtn">Start(press up to jump)</div>
+    </div>
     <canvas id="canvas1"></canvas>
     <img src="./src/背景.png" id="background" alt="background">
     <img src="./src/player.png" id="player" alt="player">
     <img src="./src/敌人.png" id="enemy" alt="enemy">
-    <button id="fullScreenButton">Toggle full screen</button>
+    <button id="fullScreenButton" >Toggle full screen</button>
     <script src="./script.js"></script>
+    <video id="bgm" src="./src/endless_loop.wav"  controls loop hidden></video>
+    <!-- <video id="bgm" src="./src/endless_loop.wav" autoplay controls loop hidden></video> -->
+    <video id="bgm_over" src="./src/hit.wav" hidden></video>
+    <video id="bgm_up" src="./src/shortjump_sfx.wav" hidden></video>
+    <video id="bgm_down" src="./src/uiselect.wav" hidden></video>
+    <!-- <embed src="./src/endless_loop.mp3"  loop  /> -->
+   
 </body>
 
 </html>
