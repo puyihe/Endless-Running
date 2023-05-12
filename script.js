@@ -1,4 +1,17 @@
 /*
+Name:Puyi He
+Endless Running
+more than 20hours
+Include in-game instructions using text or other means (e.g., tooltips, tutorial, diagram, etc.) (5)
+Have some form of player input/control appropriate to your game design (5)
+Include one or more animated characters that use a texture atlas (5)
+Implement proper collision detection (via Arcade Physics or a custom routine) (5)
+Use a minimum of three sound effects for key mechanics, UI, and/or significant events appropriate to your game design (5)
+Include some metric of accomplishment that a player can improve over time, e.g., score, survival time, etc. (5)
+Be theoretically endless (5)
+Be playable for at least 15 seconds for a new player of low to moderate skill (5)
+Run without significant crashes or errors (5)
+Include in-game credits for all roles, assets, music, etc. (5)
 Technically I tried adding a fullscreen button and combined all the required code parts together.
 The art continues the high-quality visual effects and smooth running and jumping animations.
 */
